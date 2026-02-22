@@ -2,7 +2,7 @@ let currentIndex = -1;
 let filteredPlaylist = [...playlist];
 let favorites = new Set();
 let showingFavoritesOnly = false;
-let currentSpeed = 1;
+let currentSpeed = 1.15;
 
 // Get DOM elements
 const audioPlayer = document.getElementById('audioPlayer');
