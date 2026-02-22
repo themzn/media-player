@@ -10,6 +10,27 @@ const searchInput = document.getElementById('searchInput');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const playPauseBtn = document.getElementById('playPauseBtn');
+const themeToggle = document.getElementById('themeToggle');
+
+// Theme management
+function initTheme() {
+    const savedTheme = localStorage.getItem('quran_player_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('quran_player_theme', newTheme);
+    updateThemeIcon(newTheme);
+}
+
+function updateThemeIcon(theme) {
+    themeToggle.textContent = theme === 'light' ? '🌙' : '☀️';
+    themeToggle.title = theme === 'light' ? 'الوضع الليلي' : 'الوضع النهاري';
+}
 
 // Initialize playlist UI
 function renderPlaylist() {
@@ -116,6 +137,7 @@ audioPlayer.addEventListener('pause', updatePlayPauseButton);
 prevBtn.addEventListener('click', prevTrack);
 nextBtn.addEventListener('click', togglePlayPause);
 playPauseBtn.addEventListener('click', togglePlayPause);
+themeToggle.addEventListener('click', toggleTheme);
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
@@ -154,5 +176,6 @@ window.addEventListener('load', () => {
     }
 });
 
-// Initial render
+// Initialize theme and playlist
+initTheme();
 renderPlaylist();

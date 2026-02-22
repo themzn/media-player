@@ -5,6 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>القرآن الكريم - Quran Player</title>
     <style>
+        :root {
+            /* Light theme (default) - Quran book inspired */
+            --bg-primary: #f8f6f0;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --accent-primary: #059669;
+            --accent-secondary: #10b981;
+            --accent-hover: #047857;
+            --border-color: #e5e1d8;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --playlist-hover: #f0fdf4;
+            --playlist-active: #d1fae5;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1d25;
+            --bg-secondary: #242833;
+            --bg-card: #2d3343;
+            --text-primary: #e2e8f0;
+            --text-secondary: #cbd5e0;
+            --accent-primary: #06b6d4;
+            --accent-secondary: #22d3ee;
+            --accent-hover: #0891b2;
+            --border-color: #3d4455;
+            --shadow: rgba(0, 0, 0, 0.4);
+            --playlist-hover: #1e3a42;
+            --playlist-active: #164e63;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,10 +44,11 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: var(--bg-primary);
             min-height: 100vh;
-            color: #fff;
+            color: var(--text-primary);
             padding: 20px;
+            transition: all 0.3s ease;
         }
 
         .container {
@@ -24,20 +56,46 @@
             margin: 0 auto;
         }
 
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
         h1 {
             text-align: center;
-            margin-bottom: 30px;
             font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            color: var(--accent-primary);
+            flex: 1;
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
         }
 
         .player-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            background: var(--bg-card);
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 20px var(--shadow);
             margin-bottom: 20px;
+            border: 1px solid var(--border-color);
         }
 
         .now-playing {
@@ -48,11 +106,12 @@
         .now-playing h2 {
             font-size: 1.8em;
             margin-bottom: 10px;
+            color: var(--text-primary);
         }
 
         .now-playing .surah-number {
             font-size: 1em;
-            opacity: 0.8;
+            color: var(--text-secondary);
         }
 
         .audio-controls {
@@ -75,19 +134,22 @@
         }
 
         button {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-primary);
+            color: var(--accent-primary);
             padding: 12px 24px;
             border-radius: 10px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: 600;
             transition: all 0.3s;
         }
 
         button:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: var(--accent-primary);
+            color: white;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
         }
 
         button:active {
@@ -95,7 +157,8 @@
         }
 
         .playlist {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 15px;
             max-height: 400px;
             overflow-y: auto;
@@ -105,27 +168,32 @@
         .playlist-item {
             padding: 15px 20px;
             margin-bottom: 8px;
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: var(--text-primary);
         }
 
         .playlist-item:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--playlist-hover);
+            border-color: var(--accent-primary);
             transform: translateX(-5px);
         }
 
         .playlist-item.active {
-            background: rgba(46, 213, 115, 0.3);
-            border: 2px solid rgba(46, 213, 115, 0.5);
+            background: var(--playlist-active);
+            border: 2px solid var(--accent-primary);
+            box-shadow: 0 2px 8px var(--shadow);
         }
 
         .playlist-item .number {
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--accent-primary);
+            color: white;
             padding: 5px 12px;
             border-radius: 20px;
             font-weight: bold;
@@ -138,13 +206,17 @@
         }
 
         .playlist::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--bg-primary);
             border-radius: 10px;
         }
 
         .playlist::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--accent-primary);
             border-radius: 10px;
+        }
+
+        .playlist::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-hover);
         }
 
         .search-box {
@@ -155,24 +227,34 @@
             width: 100%;
             padding: 15px;
             border-radius: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            border: 2px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
             font-size: 16px;
+            transition: all 0.3s;
         }
 
         .search-box input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--text-secondary);
         }
 
         .search-box input:focus {
             outline: none;
-            border-color: rgba(46, 213, 115, 0.5);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+
+        [data-theme="dark"] .search-box input:focus {
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
         }
 
         @media (max-width: 600px) {
             h1 {
                 font-size: 1.8em;
+            }
+            .header {
+                flex-direction: column;
+                gap: 15px;
             }
             .controls-row {
                 flex-wrap: wrap;
@@ -186,7 +268,11 @@
 </head>
 <body>
     <div class="container">
-        <h1>🕌 القرآن الكريم</h1>
+        <div class="header">
+            <button class="theme-toggle" id="themeToggle" title="تبديل السمة">🌙</button>
+            <h1>🕌 القرآن الكريم</h1>
+            <div style="width: 48px;"></div> <!-- Spacer for centering -->
+        </div>
         
         <div class="player-container">
             <div class="now-playing">
