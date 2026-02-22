@@ -67,12 +67,69 @@
             gap: 10px;
         }
 
+        .title-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            gap: 8px;
+        }
+
+        .quran-logo {
+            width: 60px;
+            height: 60px;
+            background: var(--accent-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quran-logo::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 45px;
+            height: 45px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            box-shadow: inset 0 2px 4px var(--shadow);
+        }
+
+        .quran-logo::after {
+            content: '﷽';
+            position: relative;
+            color: var(--accent-primary);
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 1;
+        }
+
         h1 {
             text-align: center;
-            font-size: 1.6em;
-            color: var(--accent-primary);
-            flex: 1;
+            font-size: 1.3em;
+            color: var(--text-primary);
             margin: 0;
+            line-height: 1.4;
+        }
+
+        h1 .main-title {
+            color: var(--accent-primary);
+            display: block;
+            font-size: 1.1em;
+        }
+
+        h1 .reciter {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            display: block;
+            margin-top: 4px;
+            font-weight: 500;
         }
 
         .theme-toggle {
@@ -141,22 +198,29 @@
         .controls-row {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            align-items: center;
+            gap: 8px;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
 
         button {
             background: var(--bg-secondary);
             border: 2px solid var(--accent-primary);
             color: var(--accent-primary);
-            padding: 14px 20px;
+            padding: 14px 18px;
             border-radius: 12px;
             cursor: pointer;
             font-size: 15px;
             font-weight: 600;
             transition: all 0.2s;
             min-height: 48px;
+            min-width: 48px;
             touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
         }
 
         button:active {
@@ -165,11 +229,21 @@
             transform: scale(0.95);
         }
 
+        button.skip-btn {
+            padding: 12px;
+            font-size: 13px;
+            min-width: 70px;
+        }
+
+        button.main-btn {
+            flex: 1;
+            max-width: 120px;
+        }
+
         .playlist {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            max-height: 50vh;
             overflow-y: auto;
             padding: 8px;
             -webkit-overflow-scrolling: touch;
@@ -268,8 +342,26 @@
                 padding: 20px;
             }
             
+            .quran-logo {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .quran-logo::before {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .quran-logo::after {
+                font-size: 24px;
+            }
+            
             h1 {
-                font-size: 2.5em;
+                font-size: 1.6em;
+            }
+            
+            h1 .main-title {
+                font-size: 1.2em;
             }
             
             .player-container {
@@ -277,7 +369,7 @@
             }
             
             .playlist {
-                max-height: 400px;
+                max-height: 450px;
             }
             
             .playlist::-webkit-scrollbar {
@@ -310,7 +402,13 @@
     <div class="container">
         <div class="header">
             <button class="theme-toggle" id="themeToggle" title="تبديل السمة">🌙</button>
-            <h1>🕌 القرآن الكريم</h1>
+            <div class="title-section">
+                <div class="quran-logo"></div>
+                <h1>
+                    <span class="main-title">القرآن الحكيم</span>
+                    <span class="reciter">تلاوة خالد زيزي</span>
+                </h1>
+            </div>
             <div style="width: 48px;"></div> <!-- Spacer for centering -->
         </div>
         
@@ -328,9 +426,11 @@
             </div>
 
             <div class="controls-row">
-                <button id="prevBtn">⏮️ السابق</button>
-                <button id="playPauseBtn">▶️ تشغيل</button>
-                <button id="nextBtn">⏭️ التالي</button>
+                <button id="nextBtn" class="main-btn">⏭️ التالي</button>
+                <button id="skipForwardBtn" class="skip-btn">+30s</button>
+                <button id="playPauseBtn" class="main-btn">▶️ تشغيل</button>
+                <button id="skipBackwardBtn" class="skip-btn">-30s</button>
+                <button id="prevBtn" class="main-btn">⏮️ السابق</button>
             </div>
         </div>
 

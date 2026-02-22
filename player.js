@@ -11,6 +11,8 @@ const searchInput = document.getElementById('searchInput');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const playPauseBtn = document.getElementById('playPauseBtn');
+const skipBackwardBtn = document.getElementById('skipBackwardBtn');
+const skipForwardBtn = document.getElementById('skipForwardBtn');
 const themeToggle = document.getElementById('themeToggle');
 
 // Theme management
@@ -129,6 +131,23 @@ function updatePlayPauseButton() {
     }
 }
 
+// Skip forward/backward 30 seconds
+function skipBackward() {
+    if (audioPlayer.currentTime > 30) {
+        audioPlayer.currentTime -= 30;
+    } else {
+        audioPlayer.currentTime = 0;
+    }
+}
+
+function skipForward() {
+    if (audioPlayer.currentTime + 30 < audioPlayer.duration) {
+        audioPlayer.currentTime += 30;
+    } else {
+        audioPlayer.currentTime = audioPlayer.duration;
+    }
+}
+
 // Search functionality
 searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.trim().toLowerCase();
@@ -159,6 +178,8 @@ audioPlayer.addEventListener('pause', updatePlayPauseButton);
 prevBtn.addEventListener('click', prevTrack);
 nextBtn.addEventListener('click', nextTrack);
 playPauseBtn.addEventListener('click', togglePlayPause);
+skipBackwardBtn.addEventListener('click', skipBackward);
+skipForwardBtn.addEventListener('click', skipForward);
 
 // Theme toggle with better mobile support
 if (themeToggle) {
@@ -175,9 +196,15 @@ document.addEventListener('keydown', (e) => {
         e.preventDefault();
         togglePlayPause();
     } else if (e.code === 'ArrowLeft') {
-        nextTrack();
+        skipBackward();
     } else if (e.code === 'ArrowRight') {
+        skipForward();
+    } else if (e.code === 'ArrowUp') {
+        e.preventDefault();
         prevTrack();
+    } else if (e.code === 'ArrowDown') {
+        e.preventDefault();
+        nextTrack();
     }
 });
 
