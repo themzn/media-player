@@ -2,7 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>القرآن الكريم - Quran Player</title>
     <style>
         :root {
@@ -43,12 +45,13 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: var(--bg-primary);
             min-height: 100vh;
             color: var(--text-primary);
-            padding: 20px;
-            transition: all 0.3s ease;
+            padding: 10px;
+            transition: background 0.3s ease, color 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .container {
@@ -60,30 +63,38 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            gap: 10px;
         }
 
         h1 {
             text-align: center;
-            font-size: 2.5em;
+            font-size: 1.6em;
             color: var(--accent-primary);
             flex: 1;
+            margin: 0;
         }
 
         .theme-toggle {
             background: var(--bg-card);
             border: 2px solid var(--border-color);
             color: var(--text-primary);
-            padding: 10px 16px;
-            border-radius: 10px;
+            padding: 12px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 24px;
             transition: all 0.3s;
             box-shadow: 0 2px 8px var(--shadow);
+            min-width: 48px;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
-        .theme-toggle:hover {
-            transform: scale(1.05);
+        .theme-toggle:active {
+            transform: scale(0.95);
             background: var(--accent-primary);
             color: white;
             border-color: var(--accent-primary);
@@ -91,98 +102,99 @@
 
         .player-container {
             background: var(--bg-card);
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 16px;
+            padding: 20px;
             box-shadow: 0 4px 20px var(--shadow);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border: 1px solid var(--border-color);
         }
 
         .now-playing {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .now-playing h2 {
-            font-size: 1.8em;
-            margin-bottom: 10px;
+            font-size: 1.3em;
+            margin-bottom: 8px;
             color: var(--text-primary);
+            line-height: 1.4;
         }
 
         .now-playing .surah-number {
-            font-size: 1em;
+            font-size: 0.95em;
             color: var(--text-secondary);
         }
 
         .audio-controls {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         audio {
             width: 100%;
-            height: 50px;
+            height: 45px;
         }
 
         .controls-row {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         button {
             background: var(--bg-secondary);
             border: 2px solid var(--accent-primary);
             color: var(--accent-primary);
-            padding: 12px 24px;
-            border-radius: 10px;
+            padding: 14px 20px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        button:hover {
-            background: var(--accent-primary);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px var(--shadow);
+            transition: all 0.2s;
+            min-height: 48px;
+            touch-action: manipulation;
         }
 
         button:active {
-            transform: translateY(0);
+            background: var(--accent-primary);
+            color: white;
+            transform: scale(0.95);
         }
 
         .playlist {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
-            border-radius: 15px;
-            max-height: 400px;
+            border-radius: 12px;
+            max-height: 50vh;
             overflow-y: auto;
-            padding: 10px;
+            padding: 8px;
+            -webkit-overflow-scrolling: touch;
         }
 
         .playlist-item {
-            padding: 15px 20px;
+            padding: 16px 14px;
             margin-bottom: 8px;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             display: flex;
             justify-content: space-between;
             align-items: center;
             color: var(--text-primary);
+            touch-action: manipulation;
+            min-height: 56px;
         }
 
-        .playlist-item:hover {
+        .playlist-item:active {
             background: var(--playlist-hover);
             border-color: var(--accent-primary);
-            transform: translateX(-5px);
+            transform: scale(0.98);
         }
 
         .playlist-item.active {
@@ -194,15 +206,16 @@
         .playlist-item .number {
             background: var(--accent-primary);
             color: white;
-            padding: 5px 12px;
+            padding: 6px 12px;
             border-radius: 20px;
             font-weight: bold;
-            min-width: 50px;
+            min-width: 48px;
             text-align: center;
+            font-size: 0.95em;
         }
 
         .playlist::-webkit-scrollbar {
-            width: 10px;
+            width: 6px;
         }
 
         .playlist::-webkit-scrollbar-track {
@@ -215,23 +228,24 @@
             border-radius: 10px;
         }
 
-        .playlist::-webkit-scrollbar-thumb:hover {
+        .playlist::-webkit-scrollbar-thumb:active {
             background: var(--accent-hover);
         }
 
         .search-box {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .search-box input {
             width: 100%;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 14px 16px;
+            border-radius: 12px;
             border: 2px solid var(--border-color);
             background: var(--bg-card);
             color: var(--text-primary);
             font-size: 16px;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            min-height: 48px;
         }
 
         .search-box input::placeholder {
@@ -248,20 +262,46 @@
             box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
         }
 
-        @media (max-width: 600px) {
+        /* Desktop improvements */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
             h1 {
-                font-size: 1.8em;
+                font-size: 2.5em;
             }
-            .header {
-                flex-direction: column;
-                gap: 15px;
+            
+            .player-container {
+                padding: 30px;
             }
-            .controls-row {
-                flex-wrap: wrap;
+            
+            .playlist {
+                max-height: 400px;
             }
-            button {
-                padding: 10px 15px;
-                font-size: 14px;
+            
+            .playlist::-webkit-scrollbar {
+                width: 10px;
+            }
+            
+            button:hover {
+                background: var(--accent-primary);
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px var(--shadow);
+            }
+            
+            .playlist-item:hover {
+                background: var(--playlist-hover);
+                border-color: var(--accent-primary);
+                transform: translateX(-5px);
+            }
+            
+            .theme-toggle:hover {
+                transform: scale(1.05);
+                background: var(--accent-primary);
+                color: white;
+                border-color: var(--accent-primary);
             }
         }
     </style>

@@ -1,6 +1,7 @@
 let currentIndex = -1;
 let filteredPlaylist = [...playlist];
 
+// Get DOM elements
 const audioPlayer = document.getElementById('audioPlayer');
 const audioSource = document.getElementById('audioSource');
 const currentTitle = document.getElementById('currentTitle');
@@ -14,22 +15,43 @@ const themeToggle = document.getElementById('themeToggle');
 
 // Theme management
 function initTheme() {
-    const savedTheme = localStorage.getItem('quran_player_theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeIcon(savedTheme);
+    try {
+        const savedTheme = localStorage.getItem('quran_player_theme') || 'light';
+        console.log('Initializing theme:', savedTheme);
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+    } catch (err) {
+        console.error('Error initializing theme:', err);
+        document.documentElement.setAttribute('data-theme', 'light');
+        updateThemeIcon('light');
+    }
 }
 
-function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('quran_player_theme', newTheme);
-    updateThemeIcon(newTheme);
+function toggleTheme(e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    try {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        console.log('Toggling theme from', currentTheme, 'to', newTheme);
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('quran_player_theme', newTheme);
+        updateThemeIcon(newTheme);
+    } catch (err) {
+        console.error('Error toggling theme:', err);
+    }
+    
+    return false;
 }
 
 function updateThemeIcon(theme) {
+    if (!themeToggle) return;
     themeToggle.textContent = theme === 'light' ? '🌙' : '☀️';
-    themeToggle.title = theme === 'light' ? 'الوضع الليلي' : 'الوضع النهاري';
+    themeToggle.setAttribute('aria-label', theme === 'light' ? 'الوضع الليلي' : 'الوضع النهاري');
 }
 
 // Initialize playlist UI
@@ -135,9 +157,17 @@ audioPlayer.addEventListener('pause', updatePlayPauseButton);
 
 // Button events
 prevBtn.addEventListener('click', prevTrack);
-nextBtn.addEventListener('click', togglePlayPause);
+nextBtn.addEventListener('click', nextTrack);
 playPauseBtn.addEventListener('click', togglePlayPause);
-themeToggle.addEventListener('click', toggleTheme);
+
+// Theme toggle with better mobile support
+if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+    themeToggle.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        toggleTheme(e);
+    });
+}
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
