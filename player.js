@@ -1,5 +1,8 @@
 let currentIndex = -1;
 let filteredPlaylist = [...playlist];
+let favorites = new Set();
+let showingFavoritesOnly = false;
+let currentSpeed = 1;
 
 // Get DOM elements
 const audioPlayer = document.getElementById('audioPlayer');
@@ -14,6 +17,8 @@ const playPauseBtn = document.getElementById('playPauseBtn');
 const skipBackwardBtn = document.getElementById('skipBackwardBtn');
 const skipForwardBtn = document.getElementById('skipForwardBtn');
 const themeToggle = document.getElementById('themeToggle');
+const favoritesFilter = document.getElementById('favoritesFilter');
+const speedButtons = document.querySelectorAll('.speed-btn');
 
 // Theme management
 function initTheme() {
@@ -56,6 +61,54 @@ function updateThemeIcon(theme) {
     themeToggle.setAttribute('aria-label', theme === 'light' ? 'الوضع الليلي' : 'الوضع النهاري');
 }
 
+// Favorites management
+function loadFavorites() {
+    try {
+        const saved = localStorage.getItem('quran_favorites');
+        if (saved) {
+            favorites = new Set(JSON.parse(saved));
+        }
+    } catch (err) {
+        console.error('Error loading favorites:', err);
+    }
+}
+
+function saveFavorites() {
+    try {
+        localStorage.setItem('quran_favorites', JSON.stringify([...favorites]));
+    } catch (err) {
+        console.error('Error saving favorites:', err);
+    }
+}
+
+function toggleFavorite(number, event) {
+    event.stopPropagation();
+    
+    if (favorites.has(number)) {
+        favorites.delete(number);
+    } else {
+        favorites.add(number);
+    }
+    
+    saveFavorites();
+    renderPlaylist();
+}
+
+function filterFavorites() {
+    showingFavoritesOnly = !showingFavoritesOnly;
+    
+    if (showingFavoritesOnly) {
+        filteredPlaylist = playlist.filter(item => favorites.has(item.number));
+        favoritesFilter.classList.add('active');
+    } else {
+        filteredPlaylist = [...playlist];
+        favoritesFilter.classList.remove('active');
+    }
+    
+    currentIndex = -1;
+    renderPlaylist();
+}
+
 // Initialize playlist UI
 function renderPlaylist() {
     playlistEl.innerHTML = '';
@@ -65,11 +118,29 @@ function renderPlaylist() {
         if (currentIndex === index) {
             div.classList.add('active');
         }
+        
+        const isFavorite = favorites.has(item.number);
+        const starIcon = isFavorite ? '⭐' : '☆';
+        
         div.innerHTML = `
-            <span>${item.title}</span>
+            <div class="title-wrapper">
+                <span class="star" data-number="${item.number}">${starIcon}</span>
+                <span>${item.title}</span>
+            </div>
             <span class="number">${item.number}</span>
         `;
-        div.onclick = () => loadTrack(index);
+        
+        // Click on title/number to play
+        div.onclick = (e) => {
+            if (!e.target.classList.contains('star')) {
+                loadTrack(index);
+            }
+        };
+        
+        // Click on star to toggle favorite
+        const starEl = div.querySelector('.star');
+        starEl.onclick = (e) => toggleFavorite(item.number, e);
+        
         playlistEl.appendChild(div);
     });
 }
@@ -83,6 +154,7 @@ function loadTrack(index) {
     
     audioSource.src = BASE_URL + track.file;
     audioPlayer.load();
+    audioPlayer.playbackRate = currentSpeed; // Apply saved speed
     
     currentTitle.textContent = track.title;
     currentNumber.textContent = `المقطع ${track.number}`;
@@ -148,14 +220,46 @@ function skipForward() {
     }
 }
 
+// Speed control
+function loadSpeed() {
+    try {
+        const saved = localStorage.getItem('quran_playback_speed');
+        if (saved) {
+            currentSpeed = parseFloat(saved);
+            setSpeed(currentSpeed);
+        }
+    } catch (err) {
+        console.error('Error loading speed:', err);
+    }
+}
+
+function setSpeed(speed) {
+    currentSpeed = speed;
+    audioPlayer.playbackRate = speed;
+    localStorage.setItem('quran_playback_speed', speed.toString());
+    
+    // Update active button
+    speedButtons.forEach(btn => {
+        if (parseFloat(btn.dataset.speed) === speed) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
 // Search functionality
 searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.trim().toLowerCase();
     
+    let baseList = showingFavoritesOnly 
+        ? playlist.filter(item => favorites.has(item.number))
+        : [...playlist];
+    
     if (searchTerm === '') {
-        filteredPlaylist = [...playlist];
+        filteredPlaylist = baseList;
     } else {
-        filteredPlaylist = playlist.filter(item => 
+        filteredPlaylist = baseList.filter(item => 
             item.title.toLowerCase().includes(searchTerm) ||
             item.number.toString().includes(searchTerm)
         );
@@ -180,6 +284,17 @@ nextBtn.addEventListener('click', nextTrack);
 playPauseBtn.addEventListener('click', togglePlayPause);
 skipBackwardBtn.addEventListener('click', skipBackward);
 skipForwardBtn.addEventListener('click', skipForward);
+
+// Speed control events
+speedButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const speed = parseFloat(btn.dataset.speed);
+        setSpeed(speed);
+    });
+});
+
+// Favorites filter event
+favoritesFilter.addEventListener('click', filterFavorites);
 
 // Theme toggle with better mobile support
 if (themeToggle) {
@@ -233,6 +348,8 @@ window.addEventListener('load', () => {
     }
 });
 
-// Initialize theme and playlist
+// Initialize theme, favorites, speed, and playlist
 initTheme();
+loadFavorites();
+loadSpeed();
 renderPlaylist();
