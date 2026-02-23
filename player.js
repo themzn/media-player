@@ -3,6 +3,14 @@ let filteredPlaylist = [...playlist];
 let favorites = new Set();
 let showingFavoritesOnly = false;
 let currentSpeed = 1.15;
+let stats = {
+    plays: {}, // { surahNumber: playCount }
+    totalListeningTime: 0, // in seconds
+    lastPlayDate: null,
+    streakDays: 0,
+    daysActive: []
+};
+let listeningStartTime = null;
 
 // Get DOM elements
 const audioPlayer = document.getElementById('audioPlayer');
@@ -59,6 +67,129 @@ function updateThemeIcon(theme) {
     if (!themeToggle) return;
     themeToggle.textContent = theme === 'light' ? '🌙' : '☀️';
     themeToggle.setAttribute('aria-label', theme === 'light' ? 'الوضع الليلي' : 'الوضع النهاري');
+}
+
+// Statistics management
+function loadStats() {
+    try {
+        const saved = localStorage.getItem('quran_stats');
+        if (saved) {
+            stats = JSON.parse(saved);
+            updateStreak();
+        }
+    } catch (err) {
+        console.error('Error loading stats:', err);
+    }
+}
+
+function saveStats() {
+    try {
+        localStorage.setItem('quran_stats', JSON.stringify(stats));
+    } catch (err) {
+        console.error('Error saving stats:', err);
+    }
+}
+
+function trackPlay(surahNumber) {
+    if (!stats.plays[surahNumber]) {
+        stats.plays[surahNumber] = 0;
+    }
+    stats.plays[surahNumber]++;
+    
+    // Track date
+    const today = new Date().toDateString();
+    if (!stats.daysActive.includes(today)) {
+        stats.daysActive.push(today);
+    }
+    stats.lastPlayDate = today;
+    
+    updateStreak();
+    saveStats();
+}
+
+function trackListeningTime() {
+    if (listeningStartTime && !audioPlayer.paused) {
+        const duration = (Date.now() - listeningStartTime) / 1000; // seconds
+        stats.totalListeningTime += duration;
+        saveStats();
+    }
+    listeningStartTime = Date.now();
+}
+
+function updateStreak() {
+    if (!stats.daysActive.length) {
+        stats.streakDays = 0;
+        return;
+    }
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    let streak = 0;
+    let currentDate = new Date(today);
+    
+    // Count consecutive days backwards from today
+    while (true) {
+        const dateStr = currentDate.toDateString();
+        if (stats.daysActive.includes(dateStr)) {
+            streak++;
+            currentDate.setDate(currentDate.getDate() - 1);
+        } else {
+            break;
+        }
+    }
+    
+    stats.streakDays = streak;
+}
+
+function formatTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    
+    if (hours > 0) {
+        return `${hours} ساعة${minutes > 0 ? ` و ${minutes} دقيقة` : ''}`;
+    } else if (minutes > 0) {
+        return `${minutes} دقيقة`;
+    } else {
+        return `${Math.floor(seconds)} ثانية`;
+    }
+}
+
+function showStats() {
+    // Calculate totals
+    const totalPlays = Object.values(stats.plays).reduce((sum, count) => sum + count, 0);
+    const uniqueSurahs = Object.keys(stats.plays).length;
+    
+    // Update stat displays
+    document.getElementById('totalPlays').textContent = totalPlays;
+    document.getElementById('uniqueSurahs').textContent = uniqueSurahs;
+    document.getElementById('totalTime').textContent = formatTime(stats.totalListeningTime);
+    document.getElementById('streakDays').textContent = `${stats.streakDays} 🔥`;
+    
+    // Get top 5 most played surahs
+    const topSurahs = Object.entries(stats.plays)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([number, count]) => {
+            const surah = playlist.find(s => s.number === parseInt(number));
+            return { name: surah ? surah.title : `سورة ${number}`, count };
+        });
+    
+    // Display top surahs
+    const topSurahsList = document.getElementById('topSurahsList');
+    if (topSurahs.length > 0) {
+        topSurahsList.innerHTML = topSurahs.map(surah => `
+            <div class="top-surah-item">
+                <span class="top-surah-name">${surah.name}</span>
+                <span class="top-surah-count">${surah.count} مرة</span>
+            </div>
+        `).join('');
+    } else {
+        topSurahsList.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">لم تستمع لأي سورة بعد</p>';
+    }
+    
+    // Show modal
+    document.getElementById('statsModal').classList.add('show');
 }
 
 // Favorites management
@@ -149,6 +280,9 @@ function renderPlaylist() {
 function loadTrack(index) {
     if (index < 0 || index >= filteredPlaylist.length) return;
     
+    // Track listening time for previous track
+    trackListeningTime();
+    
     const track = filteredPlaylist[index];
     currentIndex = index;
     
@@ -159,6 +293,9 @@ function loadTrack(index) {
     currentTitle.textContent = track.title;
     currentNumber.textContent = `المقطع ${track.number}`;
     
+    // Track play
+    trackPlay(track.number);
+    
     renderPlaylist();
     
     // Auto play
@@ -167,6 +304,9 @@ function loadTrack(index) {
     });
     
     updatePlayPauseButton();
+    
+    // Reset listening timer
+    listeningStartTime = Date.now();
 }
 
 // Previous track
@@ -271,12 +411,32 @@ searchInput.addEventListener('input', (e) => {
 
 // Auto-play next track when current ends
 audioPlayer.addEventListener('ended', () => {
+    trackListeningTime(); // Track time before moving to next
     nextTrack();
 });
 
 // Update play/pause button when playback state changes
-audioPlayer.addEventListener('play', updatePlayPauseButton);
-audioPlayer.addEventListener('pause', updatePlayPauseButton);
+audioPlayer.addEventListener('play', () => {
+    updatePlayPauseButton();
+    listeningStartTime = Date.now();
+});
+
+audioPlayer.addEventListener('pause', () => {
+    updatePlayPauseButton();
+    trackListeningTime();
+});
+
+// Track time periodically during playback
+setInterval(() => {
+    if (!audioPlayer.paused && listeningStartTime) {
+        trackListeningTime();
+    }
+}, 30000); // Every 30 seconds
+
+// Track time when leaving page
+window.addEventListener('beforeunload', () => {
+    trackListeningTime();
+});
 
 // Button events
 prevBtn.addEventListener('click', prevTrack);
@@ -295,6 +455,29 @@ speedButtons.forEach(btn => {
 
 // Favorites filter event
 favoritesFilter.addEventListener('click', filterFavorites);
+
+// Stats modal events
+const statsBtn = document.getElementById('statsBtn');
+const statsModal = document.getElementById('statsModal');
+const statsClose = document.getElementById('statsClose');
+
+if (statsBtn) {
+    statsBtn.addEventListener('click', showStats);
+}
+
+if (statsClose) {
+    statsClose.addEventListener('click', () => {
+        statsModal.classList.remove('show');
+    });
+}
+
+if (statsModal) {
+    statsModal.addEventListener('click', (e) => {
+        if (e.target === statsModal) {
+            statsModal.classList.remove('show');
+        }
+    });
+}
 
 // Theme toggle with better mobile support
 if (themeToggle) {
@@ -426,8 +609,9 @@ window.addEventListener('online', updateOnlineStatus);
 window.addEventListener('offline', updateOnlineStatus);
 updateOnlineStatus();
 
-// Initialize theme, favorites, speed, and playlist
+// Initialize theme, favorites, speed, stats, and playlist
 initTheme();
 loadFavorites();
 loadSpeed();
+loadStats();
 renderPlaylist();

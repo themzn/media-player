@@ -505,6 +505,158 @@
             display: flex;
         }
 
+        .stats-btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            color: var(--accent-primary);
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 2px 8px var(--shadow);
+            z-index: 999;
+            transition: all 0.2s;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .stats-btn:active {
+            transform: scale(0.95);
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .stats-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .stats-modal.show {
+            display: flex;
+        }
+
+        .stats-content {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .stats-header h2 {
+            color: var(--accent-primary);
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .stats-close {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 28px;
+            cursor: pointer;
+            padding: 5px 10px;
+            min-width: auto;
+            min-height: auto;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--accent-primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+        }
+
+        .stat-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .top-surahs {
+            margin-top: 20px;
+        }
+
+        .top-surahs h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .top-surah-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .top-surah-name {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .top-surah-count {
+            color: var(--accent-primary);
+            font-weight: bold;
+            background: var(--bg-primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        @media (min-width: 768px) {
+            .stats-btn:hover {
+                transform: scale(1.05);
+                background: var(--accent-primary);
+                color: white;
+                border-color: var(--accent-primary);
+            }
+        }
+
         /* Mobile adjustments */
         @media (max-width: 480px) {
             .controls-extra {
@@ -586,6 +738,8 @@
     </style>
 </head>
 <body>
+    <button class="stats-btn" id="statsBtn" title="الإحصائيات">📊</button>
+
     <div class="offline-indicator" id="offlineIndicator">
         <span>🔌</span>
         <span>وضع عدم الاتصال</span>
@@ -596,6 +750,41 @@
         <span>تثبيت التطبيق للوصول السريع والعمل بدون إنترنت</span>
         <button id="installBtn">تثبيت</button>
         <button class="close-btn" id="closeInstallPrompt">✕</button>
+    </div>
+
+    <div class="stats-modal" id="statsModal">
+        <div class="stats-content">
+            <div class="stats-header">
+                <h2>📊 إحصائياتي</h2>
+                <button class="stats-close" id="statsClose">✕</button>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalPlays">0</div>
+                    <div class="stat-label">مرات الاستماع</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="uniqueSurahs">0</div>
+                    <div class="stat-label">سورة مختلفة</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-number" id="totalTime">0 ساعة</div>
+                <div class="stat-label">مجموع وقت الاستماع</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-number" id="streakDays">0 🔥</div>
+                <div class="stat-label">أيام متتالية</div>
+            </div>
+
+            <div class="top-surahs">
+                <h3>🏆 الأكثر استماعاً</h3>
+                <div id="topSurahsList"></div>
+            </div>
+        </div>
     </div>
 
     <div class="container">
