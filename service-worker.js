@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quran-player-v1';
+const CACHE_NAME = 'quran-player-v2';
 const AUDIO_CACHE = 'quran-audio-v1';
 
 // Files to cache immediately on install
@@ -7,7 +7,7 @@ const STATIC_ASSETS = [
   '/media-player/index.html',
   '/media-player/player.js',
   '/media-player/playlist-data.js',
-  '/media-player/bismillah-logo.webp',
+  '/media-player/bismillah-logo-new.webp',
   '/media-player/manifest.json'
 ];
 
