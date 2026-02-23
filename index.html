@@ -415,17 +415,28 @@
 
         footer {
             text-align: center;
-            padding: 20px 10px;
+            padding: 30px 10px 20px;
             margin-top: 30px;
             color: var(--text-secondary);
             font-size: 0.85em;
             border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
         }
 
         footer a {
             color: var(--accent-primary);
             text-decoration: none;
             font-weight: 600;
+        }
+
+        footer .footer-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .install-prompt {
@@ -506,21 +517,19 @@
         }
 
         .stats-btn {
-            position: fixed;
-            top: 10px;
-            left: 10px;
             background: var(--bg-card);
-            border: 2px solid var(--border-color);
+            border: 2px solid var(--accent-primary);
             color: var(--accent-primary);
-            padding: 10px 14px;
+            padding: 12px 24px;
             border-radius: 10px;
             cursor: pointer;
-            font-size: 18px;
-            box-shadow: 0 2px 8px var(--shadow);
-            z-index: 999;
+            font-size: 16px;
+            font-weight: 600;
             transition: all 0.2s;
-            min-width: 44px;
-            min-height: 44px;
+            min-height: 48px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .stats-btn:active {
@@ -650,10 +659,10 @@
 
         @media (min-width: 768px) {
             .stats-btn:hover {
-                transform: scale(1.05);
                 background: var(--accent-primary);
                 color: white;
-                border-color: var(--accent-primary);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px var(--shadow);
             }
         }
 
@@ -738,8 +747,6 @@
     </style>
 </head>
 <body>
-    <button class="stats-btn" id="statsBtn" title="الإحصائيات">📊</button>
-
     <div class="offline-indicator" id="offlineIndicator">
         <span>🔌</span>
         <span>وضع عدم الاتصال</span>
@@ -792,7 +799,7 @@
             <button class="theme-toggle" id="themeToggle" title="تبديل السمة">🌙</button>
             <div class="title-section">
                 <div class="quran-logo">
-                    <img src="bismillah-logo.webp" alt="بسم الله الرحمن الرحيم">
+                    <img src="bismillah-logo-new.webp" alt="بسم الله الرحمن الرحيم">
                 </div>
                 <h1>
                     <span class="main-title">القرآن الحكيم</span>
@@ -844,7 +851,15 @@
         <div class="playlist" id="playlist"></div>
 
         <footer>
-            صُنع بعناية من قِبل محمد زيزي
+            <div class="footer-buttons">
+                <button class="stats-btn" id="statsBtn">
+                    <span>📊</span>
+                    <span>الإحصائيات</span>
+                </button>
+            </div>
+            <div>
+                صُنع بعناية من قِبل محمد زيزي
+            </div>
         </footer>
     </div>
 
