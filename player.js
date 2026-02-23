@@ -291,10 +291,13 @@ function loadTrack(index) {
     audioPlayer.playbackRate = currentSpeed; // Apply saved speed
     
     currentTitle.textContent = track.title;
-    currentNumber.textContent = `المقطع ${track.number}`;
+    currentNumber.textContent = `السّورة ${track.number}`;
     
     // Track play
     trackPlay(track.number);
+    
+    // Update Media Session (lock screen controls)
+    updateMediaSession(track);
     
     renderPlaylist();
     
@@ -608,6 +611,45 @@ function updateOnlineStatus() {
 window.addEventListener('online', updateOnlineStatus);
 window.addEventListener('offline', updateOnlineStatus);
 updateOnlineStatus();
+
+// Media Session API for lock screen controls
+function updateMediaSession(track) {
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: track.title,
+            artist: 'خالد زيزي',
+            album: 'القرآن الحكيم',
+            artwork: [
+                { src: '/media-player/bismillah-logo-new.webp', sizes: '512x512', type: 'image/webp' }
+            ]
+        });
+        
+        // Set up action handlers
+        navigator.mediaSession.setActionHandler('play', () => {
+            audioPlayer.play();
+        });
+        
+        navigator.mediaSession.setActionHandler('pause', () => {
+            audioPlayer.pause();
+        });
+        
+        navigator.mediaSession.setActionHandler('previoustrack', () => {
+            prevTrack();
+        });
+        
+        navigator.mediaSession.setActionHandler('nexttrack', () => {
+            nextTrack();
+        });
+        
+        navigator.mediaSession.setActionHandler('seekbackward', () => {
+            skipBackward();
+        });
+        
+        navigator.mediaSession.setActionHandler('seekforward', () => {
+            skipForward();
+        });
+    }
+}
 
 // Initialize theme, favorites, speed, stats, and playlist
 initTheme();
