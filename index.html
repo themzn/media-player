@@ -5,7 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>القرآن الكريم - Quran Player</title>
+    <meta name="apple-mobile-web-app-title" content="القرآن الحكيم">
+    <meta name="description" content="مشغل القرآن الكريم بصوت خالد زيزي - استمع للقرآن الكريم بجودة عالية">
+    <meta name="theme-color" content="#059669">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="bismillah-logo.webp">
+    <title>القرآن الحكيم - تلاوة خالد زيزي</title>
     <style>
         :root {
             /* Light theme (default) - Quran book inspired */
@@ -423,6 +428,83 @@
             font-weight: 600;
         }
 
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-primary);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            max-width: 90%;
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+        }
+
+        .install-prompt.show {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateX(-50%) translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .install-prompt button {
+            background: white;
+            color: var(--accent-primary);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            min-width: auto;
+            min-height: auto;
+        }
+
+        .install-prompt button:active {
+            transform: scale(0.95);
+        }
+
+        .install-prompt .close-btn {
+            background: transparent;
+            color: white;
+            padding: 5px 10px;
+            font-size: 18px;
+        }
+
+        .offline-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            box-shadow: 0 2px 8px var(--shadow);
+            border: 1px solid var(--border-color);
+            display: none;
+            align-items: center;
+            gap: 6px;
+            z-index: 999;
+        }
+
+        .offline-indicator.show {
+            display: flex;
+        }
+
         /* Mobile adjustments */
         @media (max-width: 480px) {
             .controls-extra {
@@ -504,6 +586,18 @@
     </style>
 </head>
 <body>
+    <div class="offline-indicator" id="offlineIndicator">
+        <span>🔌</span>
+        <span>وضع عدم الاتصال</span>
+    </div>
+
+    <div class="install-prompt" id="installPrompt">
+        <span>📱</span>
+        <span>تثبيت التطبيق للوصول السريع والعمل بدون إنترنت</span>
+        <button id="installBtn">تثبيت</button>
+        <button class="close-btn" id="closeInstallPrompt">✕</button>
+    </div>
+
     <div class="container">
         <div class="header">
             <button class="theme-toggle" id="themeToggle" title="تبديل السمة">🌙</button>

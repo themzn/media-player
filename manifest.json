@@ -1,0 +1,22 @@
+{
+  "name": "القرآن الحكيم - تلاوة خالد زيزي",
+  "short_name": "القرآن الحكيم",
+  "description": "مشغل القرآن الكريم بصوت خالد زيزي",
+  "start_url": "/media-player/",
+  "display": "standalone",
+  "background_color": "#f8f6f0",
+  "theme_color": "#059669",
+  "orientation": "portrait",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "bismillah-logo.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "lifestyle"],
+  "screenshots": []
+}

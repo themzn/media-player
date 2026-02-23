@@ -348,6 +348,84 @@ window.addEventListener('load', () => {
     }
 });
 
+// PWA Installation
+let deferredPrompt;
+const installPromptEl = document.getElementById('installPrompt');
+const installBtn = document.getElementById('installBtn');
+const closeInstallPrompt = document.getElementById('closeInstallPrompt');
+const offlineIndicator = document.getElementById('offlineIndicator');
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/media-player/service-worker.js')
+            .then((registration) => {
+                console.log('Service Worker registered:', registration);
+            })
+            .catch((error) => {
+                console.error('Service Worker registration failed:', error);
+            });
+    });
+}
+
+// Capture install prompt
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // Check if user hasn't dismissed it before
+    const dismissed = localStorage.getItem('install_prompt_dismissed');
+    if (!dismissed) {
+        setTimeout(() => {
+            installPromptEl.classList.add('show');
+        }, 3000); // Show after 3 seconds
+    }
+});
+
+// Install button click
+if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) {
+            return;
+        }
+        
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        
+        console.log(`User response to install prompt: ${outcome}`);
+        
+        deferredPrompt = null;
+        installPromptEl.classList.remove('show');
+    });
+}
+
+// Close install prompt
+if (closeInstallPrompt) {
+    closeInstallPrompt.addEventListener('click', () => {
+        installPromptEl.classList.remove('show');
+        localStorage.setItem('install_prompt_dismissed', 'true');
+    });
+}
+
+// Detect when app is installed
+window.addEventListener('appinstalled', () => {
+    console.log('PWA was installed');
+    installPromptEl.classList.remove('show');
+});
+
+// Online/Offline detection
+function updateOnlineStatus() {
+    if (!navigator.onLine) {
+        offlineIndicator.classList.add('show');
+    } else {
+        offlineIndicator.classList.remove('show');
+    }
+}
+
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+updateOnlineStatus();
+
 // Initialize theme, favorites, speed, and playlist
 initTheme();
 loadFavorites();
