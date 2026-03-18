@@ -3,6 +3,7 @@ let filteredPlaylist = [...playlist];
 let favorites = new Set();
 let showingFavoritesOnly = false;
 let currentSpeed = 1.15;
+let isLoopEnabled = false;
 let stats = {
     plays: {}, // { surahNumber: playCount }
     totalListeningTime: 0, // in seconds
@@ -26,6 +27,7 @@ const skipBackwardBtn = document.getElementById('skipBackwardBtn');
 const skipForwardBtn = document.getElementById('skipForwardBtn');
 const themeToggle = document.getElementById('themeToggle');
 const favoritesFilter = document.getElementById('favoritesFilter');
+const loopBtn = document.getElementById('loopBtn');
 const speedButtons = document.querySelectorAll('.speed-btn');
 
 // Theme management
@@ -391,6 +393,30 @@ function setSpeed(speed) {
     });
 }
 
+// Loop control
+function loadLoop() {
+    try {
+        const saved = localStorage.getItem('quran_loop_enabled');
+        if (saved === 'true') {
+            isLoopEnabled = true;
+            loopBtn.classList.add('active');
+        }
+    } catch (err) {
+        console.error('Error loading loop state:', err);
+    }
+}
+
+function toggleLoop() {
+    isLoopEnabled = !isLoopEnabled;
+    localStorage.setItem('quran_loop_enabled', isLoopEnabled.toString());
+    
+    if (isLoopEnabled) {
+        loopBtn.classList.add('active');
+    } else {
+        loopBtn.classList.remove('active');
+    }
+}
+
 // Search functionality
 searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.trim().toLowerCase();
@@ -415,7 +441,12 @@ searchInput.addEventListener('input', (e) => {
 // Auto-play next track when current ends
 audioPlayer.addEventListener('ended', () => {
     trackListeningTime(); // Track time before moving to next
-    nextTrack();
+    if (isLoopEnabled) {
+        audioPlayer.currentTime = 0;
+        audioPlayer.play();
+    } else {
+        nextTrack();
+    }
 });
 
 // Update play/pause button when playback state changes
@@ -449,6 +480,9 @@ skipBackwardBtn.addEventListener('click', skipBackward);
 skipForwardBtn.addEventListener('click', skipForward);
 
 // Speed control events
+
+// Loop button event
+loopBtn.addEventListener('click', toggleLoop);
 speedButtons.forEach(btn => {
     btn.addEventListener('click', () => {
         const speed = parseFloat(btn.dataset.speed);
@@ -655,5 +689,6 @@ function updateMediaSession(track) {
 initTheme();
 loadFavorites();
 loadSpeed();
+loadLoop();
 loadStats();
 renderPlaylist();

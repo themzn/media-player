@@ -190,6 +190,29 @@
             flex-wrap: wrap;
         }
 
+        .loop-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .loop-btn {
+            flex: 1;
+            max-width: 300px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-primary);
+            color: var(--accent-primary);
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .loop-btn.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+
         button {
             background: var(--bg-secondary);
             border: 2px solid var(--accent-primary);
@@ -828,6 +851,10 @@
                 <button id="playPauseBtn" class="main-btn">▶️ تشغيل</button>
                 <button id="skipBackwardBtn" class="skip-btn">-30s</button>
                 <button id="prevBtn" class="main-btn">⏮️ السابق</button>
+            </div>
+
+            <div class="loop-row">
+                <button id="loopBtn" class="loop-btn">🔁 تكرار السّورة</button>
             </div>
         </div>
 
